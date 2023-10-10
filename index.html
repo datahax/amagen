@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Alla mot Alla generator</title>
+</head>
+
+<body>
+<canvas id="amaBoard" width="1296" height="714"></canvas>
+<script>
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  ctx.textAlign = "center";
+  ctx.font = "65px Arial";
+
+  var words = text.split(' ');
+  var line = '';
+
+  for(var n = 0; n < words.length; n++) {
+    var testLine = line + words[n] + ' ';
+    var metrics = ctx.measureText(testLine);
+    var testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      ctx.fillText(line, x, y);
+      line = words[n] + ' ';
+      y += lineHeight;
+    }
+    else {
+      line = testLine;
+    }
+  }
+
+  ctx.fillText(line, x, y);
+}
+
+var canvas = document.getElementById('amaBoard');
+var context = canvas.getContext('2d');
+var maxWidth = 800;
+var lineHeight = 65;
+var x = (canvas.width / 2) - 80;
+var y = 240;
+var text = "Programledaren Filip Hammar är död. Så här minns Ekothonom.";
+
+var imageObj = new Image();
+imageObj.src = 'canvas.jpg';
+imageObj.onload = function () {
+    context.drawImage(imageObj, 0, 0);
+    wrapText(context, text.toUpperCase(), x, y, maxWidth, lineHeight);
+};
+</script>
+</body>
+</html>
