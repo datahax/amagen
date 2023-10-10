@@ -47,7 +47,7 @@ if (textLines.length > 1) {
   y -= lineHeight * textLines.length / 2 - lineHeight;
 }
 
-imageObj.src = "canvas.jpg";
+imageObj.src = "public/canvas.jpg";
 imageObj.onload = function () {
   ctx.drawImage(imageObj, 0, 0);
 
