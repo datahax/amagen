@@ -1,8 +1,11 @@
-# `amage` - Generate AMA cards
+# `amagen` - Generate AMA cards
 
 Generate your own categories for Alla mot alla!
 
 ## Setup
+
+- `npm install`
+- `npm run dev`
 
 * Initially following
   [this](https://blog.logrocket.com/how-to-set-up-node-typescript-express/)
