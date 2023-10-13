@@ -139,7 +139,7 @@ function generateImage(text) {
   gradient.addColorStop(1, "#bab466");
   offscreenCtx1.fillStyle = gradient;
 
-  imageObj.src = "canvas.jpg";
+  imageObj.src = "/public/canvas.jpg";
   imageObj.onload = function () {
     ctx.drawImage(imageObj, 0, 0);
 
