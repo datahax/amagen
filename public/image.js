@@ -6,6 +6,7 @@ function splitToLines(ctx, text, maxWidth) {
   for (var i = 1; i < words.length; i++) {
     var word = words[i];
     var width = ctx.measureText(currentLine + " " + word).width;
+    console.log(`Word: ${word}, Width: ${width}, MaxWidth: ${maxWidth}`);
     if (width < maxWidth) {
       currentLine += " " + word;
     } else {
@@ -15,6 +16,8 @@ function splitToLines(ctx, text, maxWidth) {
   }
 
   lines.push(currentLine);
+
+  console.log(lines);
 
   return lines;
 }
