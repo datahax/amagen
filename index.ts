@@ -9,7 +9,8 @@ const app: Express = express();
 const port = process.env.PORT || 8080;
 const path = require('path');
 
-app.use('/public', express.static('public'));
+app.use('/', express.static('public'));
+app.use('/static', express.static(path.join(__dirname, 'public/static')));
 
 app.get('/', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '/index.html'));

@@ -1,0 +1,12 @@
+@import url('poppins.css');
+
+body {
+  font-family: sans-serif;
+}
+
+input[type="text"] {
+  width: 1200px;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+}

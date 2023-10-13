@@ -1,37 +1,18 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Alla mot alla generator</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css"
-    />
-    <style>
-      .github-fork-ribbon:before {
-        background-color: #000;
-      }
-      input[type="text"] {
-        width: 1296px;
-        padding: 12px 20px;
-        margin: 8px 0;
-        box-sizing: border-box;
-      }
-    </style>
-  </head>
 
-  <body>
-    <a
-      class="github-fork-ribbon"
-      href="https://github.com/datahax/amagen"
-      data-ribbon="Fork me on GitHub"
-      title="Fork me on GitHub"
-      >Fork me on GitHub</a
-    >
-    <p>
-      <input type="text" name="text" id="text" placeholder="Enter text..." />
-    </p>
-    <canvas id="amaBoard" width="1296" height="714"></canvas>
-    <script src="public/image.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>Alla mot alla generator</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <div class="page">
+    <input type="text" name="text" id="text" placeholder="Enter text..." />
+    <canvas id="amaBoard" width="1200" height="675"></canvas>
+  </div>
+  <script src="image.js"></script>
+</body>
+
 </html>
