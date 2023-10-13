@@ -108,6 +108,8 @@ function generateImage(text) {
 
   if (textLines.length > 1) {
     y -= (lineHeight * textLines.length) / 2 - lineHeight;
+  } else {
+    y += lineHeight / 2;
   }
 
   let textWidth = 0;
@@ -159,6 +161,8 @@ function generateImage(text) {
     y = 305; // Center Y of the TV screen
     if (textLines.length > 1) {
       y -= (lineHeight * textLines.length) / 2 - lineHeight;
+    } else {
+      y += lineHeight / 2;
     }
 
     const strokeAngle = -130 * (Math.PI / 180);
