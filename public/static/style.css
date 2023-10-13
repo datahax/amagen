@@ -1,4 +1,4 @@
-@import url('poppins.css');
+@import url("poppins.css");
 
 body {
   font-family: sans-serif;
@@ -9,4 +9,8 @@ input[type="text"] {
   padding: 12px 20px;
   margin: 8px 0;
   box-sizing: border-box;
+}
+
+.github-fork-ribbon:before {
+  background-color: #000;
 }

@@ -1,17 +1,18 @@
 // Helper function to split text into multiple lines
 function splitToLines(ctx, text, maxWidth) {
-  var words = text.split(" ");
-  var lines = [];
-  var currentLine = words[0];
+  const words = text.split(" ");
+  const lines = [];
+  let currentLine = words[0];
 
-  for (var i = 1; i < words.length; i++) {
-    var word = words[i];
-    var width = ctx.measureText(currentLine + " " + word).width;
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = ctx.measureText(`${currentLine}  ${word}`).width;
     if (width < maxWidth) {
-      currentLine += " " + word;
+      currentLine += ` ${word}`;
     } else {
       // Check if the maximum number of lines is reached
-      if (lines.length >= 5) { // considering the current line will be the 5th
+      if (lines.length >= 5) {
+        // considering the current line will be the 5th
         break;
       }
 
@@ -49,7 +50,7 @@ class Matrix {
       -c / det,
       a / det,
       (c * f - d * e) / det,
-      (b * e - a * f) / det
+      (b * e - a * f) / det,
     ]);
   }
 
@@ -63,7 +64,7 @@ class Matrix {
       a1 * c2 + c1 * d2,
       b1 * c2 + d1 * d2,
       a1 * e2 + c1 * f2 + e1,
-      b1 * e2 + d1 * f2 + f1
+      b1 * e2 + d1 * f2 + f1,
     ]);
   }
 }
@@ -103,14 +104,14 @@ function generateImage(text) {
   const lineHeight = 70;
   const textLines = splitToLines(offscreenCtx1, text.toUpperCase(), maxWidth);
   let x = 479; // Center X of the TV screen
-  let y = 305;   // Center Y of the TV screen
+  let y = 305; // Center Y of the TV screen
 
   if (textLines.length > 1) {
     y -= (lineHeight * textLines.length) / 2 - lineHeight;
   }
 
   let textWidth = 0;
-  let textHeight = lineHeight * textLines.length;
+  const textHeight = lineHeight * textLines.length;
 
   for (let i = 0; i < textLines.length; i++) {
     const lineWidth = offscreenCtx1.measureText(textLines[i]).width;
@@ -122,16 +123,16 @@ function generateImage(text) {
   // Gradient setup
   const fillAngle = -50 * (Math.PI / 180);
   const length = Math.sqrt(textWidth * textWidth + textHeight * textHeight);
-  const x1 = x + Math.cos(fillAngle - Math.PI / 2) * length / 2;
-  const y1 = y + Math.sin(fillAngle - Math.PI / 2) * length / 2;
-  const x2 = x + Math.cos(fillAngle + Math.PI / 2) * length / 2;
-  const y2 = y + Math.sin(fillAngle + Math.PI / 2) * length / 2;
+  const x1 = x + (Math.cos(fillAngle - Math.PI / 2) * length) / 2;
+  const y1 = y + (Math.sin(fillAngle - Math.PI / 2) * length) / 2;
+  const x2 = x + (Math.cos(fillAngle + Math.PI / 2) * length) / 2;
+  const y2 = y + (Math.sin(fillAngle + Math.PI / 2) * length) / 2;
 
   const gradient = offscreenCtx1.createLinearGradient(x1, y1, x2, y2);
   gradient.addColorStop(0, "#b59514");
   gradient.addColorStop(0.15, "#a68200");
   gradient.addColorStop(0.31, "#9e780b");
-  gradient.addColorStop(0.40, "#c2c496");
+  gradient.addColorStop(0.4, "#c2c496");
   gradient.addColorStop(0.52, "#cad9dc");
   gradient.addColorStop(0.63, "#d1e7ff");
   gradient.addColorStop(0.76, "#b0bdaa");
@@ -155,18 +156,23 @@ function generateImage(text) {
     }
 
     // Reset y for shadowed stroke
-    y = 305;   // Center Y of the TV screen
+    y = 305; // Center Y of the TV screen
     if (textLines.length > 1) {
       y -= (lineHeight * textLines.length) / 2 - lineHeight;
     }
 
     const strokeAngle = -130 * (Math.PI / 180);
-    const strokeX1 = x + Math.cos(strokeAngle - Math.PI / 2) * length / 2;
-    const strokeY1 = y + Math.sin(strokeAngle - Math.PI / 2) * length / 2;
-    const strokeX2 = x + Math.cos(strokeAngle + Math.PI / 2) * length / 2;
-    const strokeY2 = y + Math.sin(strokeAngle + Math.PI / 2) * length / 2;
+    const strokeX1 = x + (Math.cos(strokeAngle - Math.PI / 2) * length) / 2;
+    const strokeY1 = y + (Math.sin(strokeAngle - Math.PI / 2) * length) / 2;
+    const strokeX2 = x + (Math.cos(strokeAngle + Math.PI / 2) * length) / 2;
+    const strokeY2 = y + (Math.sin(strokeAngle + Math.PI / 2) * length) / 2;
 
-    const strokeGradient = offscreenCtx1.createLinearGradient(strokeX1, strokeY1, strokeX2, strokeY2);
+    const strokeGradient = offscreenCtx1.createLinearGradient(
+      strokeX1,
+      strokeY1,
+      strokeX2,
+      strokeY2,
+    );
     strokeGradient.addColorStop(0, "#b59514");
     strokeGradient.addColorStop(0.04, "#c2c496");
     strokeGradient.addColorStop(0.13, "#9e780b");
@@ -191,10 +197,10 @@ function generateImage(text) {
     }
 
     // Draw the offscreenCanvas1 onto offscreenCanvas2 with transformation and blur
-    offscreenCtx2.filter = 'blur(0.5px)';
+    offscreenCtx2.filter = "blur(0.5px)";
     setTransform(offscreenCtx2, srcPoints, dstPoints);
     offscreenCtx2.drawImage(offscreenCanvas1, 0, 0);
-    offscreenCtx2.filter = 'none'; // Reset the filter
+    offscreenCtx2.filter = "none"; // Reset the filter
 
     // Draw the offscreen canvas onto the main canvas
     ctx.drawImage(offscreenCanvas2, 0, 0);
