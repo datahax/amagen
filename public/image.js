@@ -1,6 +1,25 @@
+function splitLongWords(words, maxWidth) {
+  const result = [];
+
+  words.forEach((word) => {
+    if (word.length > maxWidth) {
+      for (let i = 0; i < word.length; i += maxWidth) {
+        result.push(
+          word.slice(i, i + maxWidth) + (i + maxWidth < word.length ? "-" : ""),
+        );
+      }
+    } else {
+      result.push(word);
+    }
+  });
+
+  return result;
+}
+
 // Helper function to split text into multiple lines
 function splitToLines(ctx, text, maxWidth) {
-  const words = text.split(" ");
+  const maxCharsPerLine = 18;
+  const words = splitLongWords(text.split(" "), maxCharsPerLine);
   const lines = [];
   let currentLine = words[0];
 
