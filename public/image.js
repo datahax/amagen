@@ -80,13 +80,13 @@ function splitToLines(ctx, text, maxWidth) {
 function drawDebugGrid(ctx, gridRows, gridCols) {
   ctx.beginPath();
   const rowHeight = ctx.canvas.height / gridRows;
-  for (let row = 0; row < ctx.canvas.height; row += rowHeight) {
+  for (let row = rowHeight; row < ctx.canvas.height; row += rowHeight) {
     ctx.moveTo(0, row);
     ctx.lineTo(ctx.canvas.width, row);
   }
 
   const colWidth = ctx.canvas.width / gridCols;
-  for (let col = 0; col < ctx.canvas.width; col += colWidth) {
+  for (let col = colWidth; col < ctx.canvas.width; col += colWidth) {
     ctx.moveTo(col, 0);
     ctx.lineTo(col, ctx.canvas.height);
   }
