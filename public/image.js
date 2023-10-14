@@ -1,3 +1,32 @@
+function createGradient(ctx, x, y, length, angle, colorStops) {
+  const x1 = x + (Math.cos(angle - Math.PI / 2) * length) / 2;
+  const y1 = y + (Math.sin(angle - Math.PI / 2) * length) / 2;
+  const x2 = x + (Math.cos(angle + Math.PI / 2) * length) / 2;
+  const y2 = y + (Math.sin(angle + Math.PI / 2) * length) / 2;
+
+  const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+  colorStops.forEach(([stop, color]) => gradient.addColorStop(stop, color));
+
+  return gradient;
+}
+
+function calculateY(initialY, textLines, lineHeight, textHeight) {
+  let y = initialY;
+  if (textLines.length > 1) {
+    y -= textHeight / 2 - lineHeight;
+  } else {
+    y += lineHeight / 2;
+  }
+  return y;
+}
+
+function drawTextLines(ctx, textLines, x, y, lineHeight) {
+  for (let i = 0; i < textLines.length; i++) {
+    ctx.fillText(textLines[i], x, y + i * lineHeight);
+    ctx.strokeText(textLines[i], x, y + i * lineHeight);
+  }
+}
+
 function splitLongWords(words, maxWidth) {
   const result = [];
 
@@ -18,7 +47,7 @@ function splitLongWords(words, maxWidth) {
 
 // Helper function to split text into multiple lines
 function splitToLines(ctx, text, maxWidth) {
-  const maxCharsPerLine = 14;
+  const maxCharsPerLine = 18;
   const words = splitLongWords(text.split(" "), maxCharsPerLine);
   const lines = [];
   let currentLine = words[0];
@@ -48,6 +77,28 @@ function splitToLines(ctx, text, maxWidth) {
   return lines;
 }
 
+function drawDebugGrid(ctx, gridRows, gridCols) {
+  ctx.beginPath();
+  const rowHeight = ctx.canvas.height / gridRows;
+  for (let row = 0; row < ctx.canvas.height; row += rowHeight) {
+    ctx.moveTo(0, row);
+    ctx.lineTo(ctx.canvas.width, row);
+  }
+
+  const colWidth = ctx.canvas.width / gridCols;
+  for (let col = 0; col < ctx.canvas.width; col += colWidth) {
+    ctx.moveTo(col, 0);
+    ctx.lineTo(col, ctx.canvas.height);
+  }
+
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255,0,0,.2)";
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
 // Main function to generate image with styled text
 function generateImage(text) {
   const imageObj = new Image();
@@ -71,22 +122,16 @@ function generateImage(text) {
   offscreenCtx1.font = "700 80px 'Poppins'";
 
   // Text line splitting
-  const maxWidth = 1000;
+  const maxWidth = canvas.width * 0.83333;
   const lineHeight = canvas.height / 8;
   const debugMode = text.toUpperCase().substr(0, 5) === "DEBUG";
   const textLines = splitToLines(offscreenCtx1, text.toUpperCase(), maxWidth);
-  const resetY = () => canvas.height / 2 - 13;
-  let x = canvas.width / 2;
-  let y = resetY();
-
-  if (textLines.length > 1) {
-    y -= (lineHeight * textLines.length) / 2 - lineHeight;
-  } else {
-    y += lineHeight / 2;
-  }
-
   let textWidth = 0;
   const textHeight = lineHeight * textLines.length;
+
+  const baseY = canvas.height / 2 - 13;
+  let x = canvas.width / 2;
+  let y = calculateY(baseY, textLines, lineHeight, textHeight);
 
   for (let i = 0; i < textLines.length; i++) {
     const lineWidth = offscreenCtx1.measureText(textLines[i]).width;
@@ -96,50 +141,37 @@ function generateImage(text) {
   }
 
   // Text fill setup
-  const fillAngle = -50 * (Math.PI / 180);
   const length = Math.sqrt(textWidth * textWidth + textHeight * textHeight);
-  const x1 = x + (Math.cos(fillAngle - Math.PI / 2) * length) / 2;
-  const y1 = y + (Math.sin(fillAngle - Math.PI / 2) * length) / 2;
-  const x2 = x + (Math.cos(fillAngle + Math.PI / 2) * length) / 2;
-  const y2 = y + (Math.sin(fillAngle + Math.PI / 2) * length) / 2;
-
-  const gradient = offscreenCtx1.createLinearGradient(x1, y1, x2, y2);
-  gradient.addColorStop(0, "#b59514");
-  gradient.addColorStop(0.15, "#a68200");
-  gradient.addColorStop(0.31, "#9e780b");
-  gradient.addColorStop(0.4, "#c2c496");
-  gradient.addColorStop(0.52, "#cad9dc");
-  gradient.addColorStop(0.63, "#d1e7ff");
-  gradient.addColorStop(0.76, "#b0bdaa");
-  gradient.addColorStop(0.88, "#bab466");
-  gradient.addColorStop(1, "#bab466");
-  offscreenCtx1.fillStyle = gradient;
+  const fillGradientColorStops = [
+    [0, "#b59514"],
+    [0.15, "#a68200"],
+    [0.31, "#9e780b"],
+    [0.4, "#c2c496"],
+    [0.52, "#cad9dc"],
+    [0.63, "#d1e7ff"],
+    [0.76, "#b0bdaa"],
+    [0.88, "#bab466"],
+    [1, "#bab466"],
+  ];
+  const fillAngle = -50 * (Math.PI / 180);
+  offscreenCtx1.fillStyle = createGradient(offscreenCtx1, x, y, length, fillAngle, fillGradientColorStops);
 
   // Text stroke setup
+  const strokeGradientColorStops = [
+    [0, "#b59514"],
+    [0.04, "#c2c496"],
+    [0.13, "#9e780b"],
+    [0.25, "#cad9dc"],
+    [0.36, "#d1e7ff"],
+    [0.51, "#a68200"],
+    [0.67, "#b0bdaa"],
+    [0.88, "#bab466"],
+    [1, "#bab466"],
+  ];
   const strokeAngle = -130 * (Math.PI / 180);
-  const strokeX1 = x + (Math.cos(strokeAngle - Math.PI / 2) * length) / 2;
-  const strokeY1 = y + (Math.sin(strokeAngle - Math.PI / 2) * length) / 2;
-  const strokeX2 = x + (Math.cos(strokeAngle + Math.PI / 2) * length) / 2;
-  const strokeY2 = y + (Math.sin(strokeAngle + Math.PI / 2) * length) / 2;
+  offscreenCtx1.strokeStyle = createGradient(offscreenCtx1, x, y, length, strokeAngle, strokeGradientColorStops);
 
-  const strokeGradient = offscreenCtx1.createLinearGradient(
-    strokeX1,
-    strokeY1,
-    strokeX2,
-    strokeY2,
-  );
-  strokeGradient.addColorStop(0, "#b59514");
-  strokeGradient.addColorStop(0.04, "#c2c496");
-  strokeGradient.addColorStop(0.13, "#9e780b");
-  strokeGradient.addColorStop(0.25, "#cad9dc");
-  strokeGradient.addColorStop(0.36, "#d1e7ff");
-  strokeGradient.addColorStop(0.51, "#a68200");
-  strokeGradient.addColorStop(0.67, "#b0bdaa");
-  strokeGradient.addColorStop(0.88, "#bab466");
-  strokeGradient.addColorStop(1, "#bab466");
-  offscreenCtx1.strokeStyle = strokeGradient;
   offscreenCtx1.lineWidth = 2;
-
   offscreenCtx1.shadowColor = "rgba(0, 0, 0, 0.5)";
   offscreenCtx1.shadowBlur = 1;
   offscreenCtx1.shadowOffsetX = 0;
@@ -149,25 +181,8 @@ function generateImage(text) {
   imageObj.onload = function () {
     ctx.drawImage(imageObj, 0, 0);
 
-    // Draw the fill text first
-    for (let i = 0; i < textLines.length; i++) {
-      offscreenCtx1.fillText(textLines[i], x, y);
-      y += lineHeight;
-    }
-
-    // Reset y for shadowed stroke
-    y = resetY();
-    if (textLines.length > 1) {
-      y -= (lineHeight * textLines.length) / 2 - lineHeight;
-    } else {
-      y += lineHeight / 2;
-    }
-
-    // Draw the shadowed stroke
-    for (let i = 0; i < textLines.length; i++) {
-      offscreenCtx1.strokeText(textLines[i], x, y);
-      y += lineHeight;
-    }
+    // Draw the fill text and shadowed stroke
+    drawTextLines(offscreenCtx1, textLines, x, y, lineHeight);
 
     // Draw the offscreenCanvas1 onto offscreenCanvas2 with blur
     offscreenCtx2.filter = "blur(0.5px)";
@@ -175,25 +190,7 @@ function generateImage(text) {
     offscreenCtx2.filter = "none"; // Reset the filter
 
     // Draw the debugging grid and background over the blurred content
-    const rowHeight = offscreenCanvas2.height / 8;
-    for (let row = rowHeight; row < offscreenCanvas2.height; row += rowHeight) {
-      offscreenCtx2.moveTo(0, row);
-      offscreenCtx2.lineTo(offscreenCanvas2.width, row);
-    }
-
-    const colWidth = offscreenCanvas2.width / 12;
-    for (let col = colWidth; col < offscreenCanvas2.width; col += colWidth) {
-      offscreenCtx2.moveTo(col, 0);
-      offscreenCtx2.lineTo(col, offscreenCanvas2.height);
-    }
-
-    offscreenCtx2.strokeStyle = "red";
-    offscreenCtx2.lineWidth = 0.5;
-    if (debugMode) offscreenCtx2.stroke();
-
-    offscreenCtx2.fillStyle = "rgba(255,0,0,.2)";
-
-    if (debugMode) offscreenCtx2.fillRect(0, 0, canvas.width, canvas.height);
+    if (debugMode) drawDebugGrid(offscreenCtx2, 8, 12);
 
     const topLeft = [113, 92];
     const topRight = [846, 96];
