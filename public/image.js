@@ -192,28 +192,19 @@ function generateImage(text) {
     // Draw the debugging grid and background over the blurred content
     if (debugMode) drawDebugGrid(offscreenCtx2, 8, 12);
 
-    const topLeft = [113, 92];
-    const topRight = [846, 96];
-    const bottomRight = [842, 540];
-    const bottomLeft = [123, 558];
+    // Coordinates of the top-left corner of the TV screen
+    const screenTopLeft = [102, 91];
+    const screenWidth = 731;
+    const screenHeight = 445;
 
-    const width = Math.sqrt(
-      Math.pow(topRight[0] - topLeft[0], 2) +
-      Math.pow(topRight[1] - topLeft[1], 2)
-    );
-    const height = Math.sqrt(
-      Math.pow(bottomLeft[0] - topLeft[0], 2) +
-      Math.pow(bottomLeft[1] - topLeft[1], 2)
-    );
-
-    // Scaling factors
-    const xScale = width / offscreenCanvas2.width;
-    const yScale = height / offscreenCanvas2.height;
+    // Scale factors
+    const xScale = screenWidth / offscreenCanvas2.width;
+    const yScale = screenHeight / offscreenCanvas2.height;
 
     // Set transformation
-    ctx.setTransform(xScale, 0, 0, yScale, topLeft[0], topLeft[1]);
+    ctx.setTransform(xScale, 0, 0, yScale, screenTopLeft[0], screenTopLeft[1]);
 
-    // Draw the text onto the main canvas
+    // Draw the offscreenCanvas2 onto the main canvas
     ctx.drawImage(offscreenCanvas2, 0, 0);
 
     // Reset transform
