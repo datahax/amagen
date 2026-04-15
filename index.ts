@@ -8,12 +8,13 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 8080;
 const path = require('path');
+const projectRoot = process.cwd();
 
 app.use('/public', express.static('public'));
-app.use('/public/static', express.static(path.join(__dirname, 'public/static')));
+app.use('/public/static', express.static(path.join(projectRoot, 'public/static')));
 
 app.get('/', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '/index.html'));
+  res.sendFile(path.join(projectRoot, 'index.html'));
 });
 
 app.listen(port, () => {
