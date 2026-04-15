@@ -169,20 +169,7 @@ function generateImage(text) {
     const srcPoints = [112, 90, 847, 96, 126, 560];
     const dstPoints = [0, 0, canvas.width, 0, 0, canvas.height];
     setTransform(offscreenCtx1, srcPoints, dstPoints);
-
-    // Draw the fill text first
-    for (let i = 0; i < textLines.length; i++) {
-      offscreenCtx1.fillText(textLines[i], x, y);
-      y += lineHeight;
-    }
-
-    // Reset y for shadowed stroke
-    y = 305; // Center Y of the TV screen
-    if (textLines.length > 1) {
-      y -= (lineHeight * textLines.length) / 2 - lineHeight;
-    } else {
-      y += lineHeight / 2;
-    }
+    const startY = y;
 
     const strokeAngle = -130 * (Math.PI / 180);
     const strokeX1 = x + (Math.cos(strokeAngle - Math.PI / 2) * length) / 2;
@@ -206,20 +193,113 @@ function generateImage(text) {
     strokeGradient.addColorStop(0.88, "#bab466");
     strokeGradient.addColorStop(1, "#bab466");
 
-    // Draw the shadowed stroke
-    offscreenCtx1.strokeStyle = strokeGradient;
-
-    offscreenCtx1.lineWidth = 2;
-    offscreenCtx1.shadowColor = "rgba(0, 0, 0, 0.5)";
-    offscreenCtx1.shadowBlur = 1;
-    offscreenCtx1.shadowOffsetX = 0;
-    offscreenCtx1.shadowOffsetY = 2;
+    // Draw fill first (original Firefox-approved look).
+    offscreenCtx1.fillStyle = gradient;
+    y = startY;
     for (let i = 0; i < textLines.length; i++) {
-      offscreenCtx1.strokeText(textLines[i], x, y);
+      offscreenCtx1.fillText(textLines[i], x, y);
       y += lineHeight;
     }
 
-    // Draw the offscreenCanvas1 onto offscreenCanvas2 with transformation and blur
+    // Draw stroke on top with subtle inset shadow.
+    const isSafari =
+      navigator.userAgent.includes("Safari") &&
+      !navigator.userAgent.includes("Chrome") &&
+      !navigator.userAgent.includes("Chromium");
+    if (isSafari) {
+      // Safari: build top-edge inset shadow from a text alpha mask.
+      // This avoids horizontal side shadowing on vertical glyph strokes.
+      const maskCanvas = document.createElement("canvas");
+      maskCanvas.width = canvas.width;
+      maskCanvas.height = canvas.height;
+      const maskCtx = maskCanvas.getContext("2d");
+      maskCtx.textAlign = "center";
+      maskCtx.font = "700 51px 'Poppins'";
+      setTransform(maskCtx, srcPoints, dstPoints);
+      maskCtx.fillStyle = "#fff";
+      y = startY;
+      for (let i = 0; i < textLines.length; i++) {
+        maskCtx.fillText(textLines[i], x, y);
+        y += lineHeight;
+      }
+
+      const maskImage = maskCtx.getImageData(0, 0, canvas.width, canvas.height);
+      const maskData = maskImage.data;
+
+      const insetCanvas = document.createElement("canvas");
+      insetCanvas.width = canvas.width;
+      insetCanvas.height = canvas.height;
+      const insetCtx = insetCanvas.getContext("2d");
+      const insetImage = insetCtx.createImageData(canvas.width, canvas.height);
+      const insetData = insetImage.data;
+
+      const width = canvas.width;
+      const height = canvas.height;
+      // Stronger at top edge, fades downward; no horizontal spread.
+      const alphaRamp = [105, 85, 62, 42];
+      for (let py = 1; py < height; py++) {
+        for (let px = 0; px < width; px++) {
+          const i = (py * width + px) * 4;
+          const a = maskData[i + 3];
+          if (a === 0) {
+            continue;
+          }
+          const topI = ((py - 1) * width + px) * 4;
+          const topA = maskData[topI + 3];
+          if (topA !== 0) {
+            continue;
+          }
+          for (let d = 0; d < alphaRamp.length; d++) {
+            const yy = py + d;
+            if (yy >= height) {
+              break;
+            }
+            const yi = (yy * width + px) * 4;
+            if (maskData[yi + 3] === 0) {
+              break;
+            }
+            const alpha = alphaRamp[d];
+            if (alpha > insetData[yi + 3]) {
+              insetData[yi + 3] = alpha;
+            }
+          }
+        }
+      }
+      for (let i = 0; i < insetData.length; i += 4) {
+        insetData[i] = 0;
+        insetData[i + 1] = 0;
+        insetData[i + 2] = 0;
+      }
+      insetCtx.putImageData(insetImage, 0, 0);
+      offscreenCtx1.drawImage(insetCanvas, 0, 0);
+
+      // Draw crisp gradient stroke on top without shadow.
+      offscreenCtx1.strokeStyle = strokeGradient;
+      offscreenCtx1.lineWidth = 2;
+      offscreenCtx1.shadowColor = "transparent";
+      offscreenCtx1.shadowBlur = 0;
+      offscreenCtx1.shadowOffsetX = 0;
+      offscreenCtx1.shadowOffsetY = 0;
+      y = startY;
+      for (let i = 0; i < textLines.length; i++) {
+        offscreenCtx1.strokeText(textLines[i], x, y);
+        y += lineHeight;
+      }
+    } else {
+      offscreenCtx1.strokeStyle = strokeGradient;
+      offscreenCtx1.lineWidth = 2;
+      offscreenCtx1.shadowColor = "rgba(0, 0, 0, 0.5)";
+      offscreenCtx1.shadowBlur = 1;
+      offscreenCtx1.shadowOffsetX = 0;
+      offscreenCtx1.shadowOffsetY = 2;
+      y = startY;
+      for (let i = 0; i < textLines.length; i++) {
+        offscreenCtx1.strokeText(textLines[i], x, y);
+        y += lineHeight;
+      }
+    }
+
+    // Keep original second-pass projection + blur.
     offscreenCtx2.filter = "blur(0.5px)";
     setTransform(offscreenCtx2, srcPoints, dstPoints);
     offscreenCtx2.drawImage(offscreenCanvas1, 0, 0);
