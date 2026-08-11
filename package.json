@@ -26,5 +26,13 @@
     "nodemon": "^3.1.14",
     "typescript": "^6.0.2"
   },
-  "packageManager": "pnpm@10.0.0"
+  "packageManager": "pnpm@10.0.0",
+  "pnpm": {
+    "overrides": {
+      "brace-expansion": ">=5.0.9",
+      "shell-quote": ">=1.9.0",
+      "body-parser": ">=2.3.0",
+      "qs": ">=6.15.2"
+    }
+  }
 }
